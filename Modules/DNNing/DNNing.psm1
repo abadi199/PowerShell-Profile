@@ -405,17 +405,19 @@ function Extract-Packages {
   $siteZipOutput = "C:\inetpub\wwwroot\$siteName\Extracted_Website"
   &7za x -y "-o$siteZipOutput" $siteZip | Out-Null
  
-  $from = $siteZipOutput
-  $unzippedFiles = @(ls $siteZipOutput)
-  if ($unzippedFiles.Length -eq 1) {
-    $from += "\$unzippedFiles"
-  }
+  $from = @(Get-ChildItem -Path $siteZipOutput -Filter web.config -Recurse)[0].Directory.FullName
+  # $from = $siteZipOutput
+  # $unzippedFiles = @(ls $siteZipOutput)
+  # if ($unzippedFiles.Length -eq 1) {
+  #   $from += "\$unzippedFiles"
+  # }
  
   # add * only if the directory already exists, based on https://groups.google.com/d/msg/microsoft.public.windows.powershell/iTEakZQQvh0/TLvql_87yzgJ
   $to = "C:\inetpub\wwwroot\$siteName\Website"
   $from += '/'
   if (Test-Path $to -PathType Container) { $from += '*' }
-  cp $from $to -Force -Recurse
+  Write-Verbose " mv $from $to -Force"
+  mv $from $to -Force
  
   rm $siteZipOutput -Force -Recurse
 }
